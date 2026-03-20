@@ -1,2 +1,1 @@
-# WitchCraft Webview
-CEO WebPage
+# Here are your Instructions
