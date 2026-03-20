@@ -1,1 +1,993 @@
+MONGO_URL="mongodb://localhost:27017"
+DB_NAME="test_database"
+#!/usr/bin/env python3
+"""
+Load concept art images for WitchCraft project
+"""
 
+import asyncio
+import os
+from datetime import datetime
+from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+async def load_concept_art():
+    # MongoDB connection
+    mongo_url = os.environ['MONGO_URL']
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ['DB_NAME']]
+    
+    print("🎨 Loading concept art for WitchCraft project...")
+    
+    # Concept Art Data with images from vision expert
+    concept_art_images = [
+        {
+            "id": "mesoamerican-stela",
+            "title": "Mesoamerican Warrior Stela",
+            "description": "Authentic Mesoamerican stone relief showing warrior/deity imagery - cultural reference for character design and world building",
+            "category": "cultural_reference",
+            "image_url": "https://images.unsplash.com/photo-1719415930895-163dacace8ab?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxhbmNpZW50JTIwd2FycmlvcnxlbnwwfHx8cHVycGxlfDE3NTMwNzEwOTR8MA&ixlib=rb-4.1.0&q=85",
+            "artist": "Historical Artifact",
+            "tags": ["mesoamerican", "warrior", "cultural", "stone relief", "deity"],
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "magical-castle-purple",
+            "title": "Magical Castle - Purple Sky",
+            "description": "Fantasy castle with magical atmosphere and purple color palette - perfect for magical world environments and hero sections",
+            "category": "environment",
+            "image_url": "https://images.unsplash.com/photo-1651927249079-a65ebd668ee0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwzfHxmYW50YXN5JTIwbWFnaWN8ZW58MHx8fHB1cnBsZXwxNzUzMDcxMDg2fDA&ixlib=rb-4.1.0&q=85",
+            "artist": "Fantasy Concept",
+            "tags": ["castle", "fantasy", "purple", "magical", "environment"],
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "fantasy-castle-magical",
+            "title": "Enchanted Castle",
+            "description": "Disney-style magical castle with purple tones and mystical atmosphere - suitable for magical kingdoms and publisher presentations",
+            "category": "environment",
+            "image_url": "https://images.unsplash.com/photo-1565132901931-7f3080fa364d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwxfHxmYW50YXN5JTIwbWFnaWN8ZW58MHx8fHB1cnBsZXwxNzUzMDcxMDg2fDA&ixlib=rb-4.1.0&q=85",
+            "artist": "Fantasy Concept",
+            "tags": ["castle", "fantasy", "magical", "enchanted", "purple tones"],
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "ancient-warrior",
+            "title": "Ancient Warrior",
+            "description": "Historical warrior with sword - character design inspiration for sorcerer warriors and tactical combat units",
+            "category": "character",
+            "image_url": "https://images.unsplash.com/photo-1655125480403-a26456124bcb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwzfHxhbmNpZW50JTIwd2FycmlvcnxlbnwwfHx8cHVycGxlfDE7NTMwNzEwOTR8MA&ixlib=rb-4.1.0&q=85",
+            "artist": "Historical Reference",
+            "tags": ["warrior", "sword", "character", "ancient", "combat"],
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "magical-hand-mystical",
+            "title": "Mystical Magic Hand",
+            "description": "Magical hand with mystical elements - perfect for representing spell casting and magical abilities in UI design",
+            "category": "magic_effects",
+            "image_url": "https://images.unsplash.com/photo-1627474184398-e5132ed9af24?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwyfHxmYW50YXN5JTIwbWFnaWN8ZW58MHx8fHB1cnBsZXwxNzUzMDcxMDg2fDA&ixlib=rb-4.1.0&q=85",
+            "artist": "Fantasy Concept",
+            "tags": ["magic", "hand", "mystical", "spells", "effects"],
+            "created_at": datetime.utcnow()
+        }
+    ]
+    
+    # Insert concept art into database
+    await db.concept_art.insert_many(concept_art_images)
+    print("✅ Concept art images loaded successfully")
+    
+    # Close the database connection
+    client.close()
+    print("🎨 Concept art loading complete!")
+
+if __name__ == "__main__":
+    asyncio.run(load_concept_art())
+fastapi==0.110.1
+uvicorn==0.25.0
+boto3>=1.34.129
+requests-oauthlib>=2.0.0
+cryptography>=42.0.8
+python-dotenv>=1.0.1
+pymongo==4.5.0
+pydantic>=2.6.4
+email-validator>=2.2.0
+pyjwt>=2.10.1
+passlib>=1.7.4
+tzdata>=2024.2
+motor==3.3.1
+pytest>=8.0.0
+black>=24.1.1
+isort>=5.13.2
+flake8>=7.0.0
+mypy>=1.8.0
+python-jose>=3.3.0
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+python-multipart>=0.0.9
+jq>=1.6.0
+typer>=0.9.0
+#!/usr/bin/env python3
+"""
+Seed data script for WitchCraft: Sorcerers and Nahuals project
+This script loads initial project data into MongoDB
+"""
+
+import asyncio
+import os
+from datetime import datetime, timedelta
+from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+async def seed_database():
+    # MongoDB connection
+    mongo_url = os.environ['MONGO_URL']
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ['DB_NAME']]
+    
+    print("🧪 Seeding WitchCraft: Sorcerers and Nahuals project data...")
+    
+    # Clear existing data (optional - remove in production)
+    await db.technical_specs.delete_many({})
+    await db.game_mechanics.delete_many({})
+    await db.team_members.delete_many({})
+    await db.roadmap.delete_many({})
+    await db.publisher_data.delete_many({})
+    await db.progress_metrics.delete_many({})
+    
+    # Technical Specifications Data
+    technical_specs = {
+        "id": "witchcraft-tech-specs-2025",
+        "title": "WitchCraft: Sorcerers and Nahuals - Technical Specifications",
+        "engine": "Unreal Engine 5",
+        "version": "5.4",
+        "platforms": [
+            "PC (Steam, GOG, Epic Games Store, Windows Store)",
+            "PlayStation 5", 
+            "Xbox Series X|S",
+            "Nintendo Switch 2"
+        ],
+        "features": {
+            "lighting": "Lumen (Dynamic Global Illumination)",
+            "geometry": "Nanite (Static environments)",
+            "world": "World Partition (Large maps)",
+            "effects": "Niagara + Dynamic magical shaders",
+            "ui": "UMG (Unreal Motion Graphics) + Slate",
+            "audio": "MetaSounds + Wwise support (optional)",
+            "performance": {
+                "console_target": "60 FPS",
+                "pc_target": "120 FPS"
+            }
+        },
+        "requirements": {
+            "minimum_pc": {
+                "os": "Windows 10/11",
+                "processor": "Intel Core i5-8400 / AMD Ryzen 5 2600",
+                "memory": "8 GB RAM",
+                "graphics": "GTX 1060 6GB / RX 580",
+                "storage": "25 GB available space"
+            },
+            "recommended_pc": {
+                "os": "Windows 11",
+                "processor": "Intel Core i7-10700K / AMD Ryzen 7 3700X", 
+                "memory": "16 GB RAM",
+                "graphics": "RTX 3070 / RX 6700 XT",
+                "storage": "25 GB SSD space"
+            }
+        },
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.technical_specs.insert_one(technical_specs)
+    print("✅ Technical specifications loaded")
+    
+    # Game Mechanics Data
+    game_mechanics = [
+        {
+            "id": "tactical-combat",
+            "name": "Sistema de Combate Táctico",
+            "description": "Combate por turnos en mapas cuadriculados con posicionamiento estratégico",
+            "category": "combat",
+            "implementation_details": "Grid-based movement, turn order initiative, terrain effects, line of sight calculations",
+            "priority": "critical",
+            "status": "in_development",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "nahual-transformation",
+            "name": "Transformación Nahual",
+            "description": "Sistema de transformación en bestia mágica con alteración de estadísticas y habilidades",
+            "category": "transformation",
+            "implementation_details": "Dynamic stats modification, new ability sets, elemental affinity changes, visual transformation system",
+            "priority": "critical",
+            "status": "in_development",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "magical-classes",
+            "name": "Clases Mágicas Evolutivas",
+            "description": "Sistema de progresión de clases similar a Bravely Default o Fire Emblem",
+            "category": "progression",
+            "implementation_details": "Job system, skill inheritance, class mastery, branching advancement paths",
+            "priority": "high",
+            "status": "planning",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "elemental-affinity",
+            "name": "Afinidades Elementales",
+            "description": "Sistema de contramagia y sincronización de hechizos",
+            "category": "magic",
+            "implementation_details": "Element wheel, spell combinations, counter-spell mechanics, elemental weaknesses/resistances",
+            "priority": "high",
+            "status": "planning",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "narrative-branching",
+            "name": "Narrativa Ramificada",
+            "description": "Decisiones morales que afectan la afinidad humana/nahual",
+            "category": "narrative",
+            "implementation_details": "Dialogue system with consequences, character relationship tracking, multiple endings",
+            "priority": "medium",
+            "status": "planning",
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": "bond-rituals",
+            "name": "Rituales de Vínculo",
+            "description": "Sistema de afinidad entre personajes y desbloqueo de habilidades especiales",
+            "category": "social",
+            "implementation_details": "Character relationship system, bond levels, unlockable abilities and scenes",
+            "priority": "medium",
+            "status": "planning",
+            "created_at": datetime.utcnow()
+        }
+    ]
+    
+    await db.game_mechanics.insert_many(game_mechanics)
+    print("✅ Game mechanics loaded")
+    
+    # Team Members Data
+    team_members = [
+        {
+            "id": "lead-programmer-001",
+            "name": "Lead Programmer",
+            "role": "lead_programmer",
+            "bio": "Especialista en C++ y Blueprints de Unreal Engine 5",
+            "skills": ["C++", "Blueprints", "UE5", "Gameplay Programming", "System Architecture"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "game-designer-001",
+            "name": "Game Designer SRPG",
+            "role": "game_designer", 
+            "bio": "Especialista en mecánicas de juegos de estrategia y RPG táctica",
+            "skills": ["SRPG Design", "Game Balance", "Combat Systems", "Progression Design"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "technical-artist-001",
+            "name": "Technical Artist UE5",
+            "role": "technical_artist",
+            "bio": "Especialista en shaders, VFX y optimización en Unreal Engine 5",
+            "skills": ["Shader Development", "Niagara VFX", "Performance Optimization", "Lighting"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "lead-3d-artist-001",
+            "name": "Lead 3D Artist",
+            "role": "lead_3d_artist",
+            "bio": "Especialista en arte stylized y modelado de personajes",
+            "skills": ["3D Modeling", "Character Design", "Stylized Art", "Animation"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "concept-artist-001",
+            "name": "Concept Artist / Art Director",
+            "role": "concept_artist",
+            "bio": "Director artístico especializado en mitología mesoamericana y estética mágica",
+            "skills": ["Concept Art", "Art Direction", "Visual Development", "Mesoamerican Art"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "narrative-designer-001",
+            "name": "Narrative Designer + Localizador",
+            "role": "narrative_designer",
+            "bio": "Especialista en narrativa interactiva y localización múltiple",
+            "skills": ["Narrative Design", "Localization", "Dialogue Systems", "World Building"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "composer-001",
+            "name": "Composer / Sound Designer",
+            "role": "composer",
+            "bio": "Compositor especializado en música mágica y diseño de audio",
+            "skills": ["Music Composition", "Sound Design", "Audio Implementation", "MetaSounds"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        },
+        {
+            "id": "project-manager-001",
+            "name": "Project Manager + QA Tester",
+            "role": "project_manager",
+            "bio": "Gerente de proyecto y especialista en control de calidad",
+            "skills": ["Project Management", "Quality Assurance", "Team Coordination", "Risk Management"],
+            "contact": None,
+            "avatar_url": None,
+            "joined_at": datetime.utcnow()
+        }
+    ]
+    
+    await db.team_members.insert_many(team_members)
+    print("✅ Team members loaded")
+    
+    # Development Roadmap
+    base_date = datetime.utcnow()
+    roadmap_items = [
+        {
+            "id": "pre-production",
+            "title": "Pre-Producción",
+            "description": "Diseño de documento técnico, concept art inicial, arquitectura del proyecto",
+            "milestone": "Milestone 1",
+            "start_date": base_date,
+            "end_date": base_date + timedelta(days=90),
+            "status": "in_development",
+            "priority": "critical",
+            "assigned_to": ["concept-artist-001", "game-designer-001", "lead-programmer-001"],
+            "dependencies": [],
+            "progress": 75
+        },
+        {
+            "id": "core-systems",
+            "title": "Sistemas Centrales",
+            "description": "Implementación de combate táctico, sistema de transformación Nahual",
+            "milestone": "Milestone 2",
+            "start_date": base_date + timedelta(days=30),
+            "end_date": base_date + timedelta(days=180),
+            "status": "in_development",
+            "priority": "critical",
+            "assigned_to": ["lead-programmer-001", "game-designer-001"],
+            "dependencies": ["pre-production"],
+            "progress": 45
+        },
+        {
+            "id": "art-pipeline",
+            "title": "Pipeline de Arte",
+            "description": "Desarrollo de assets, personajes, entornos y efectos visuales",
+            "milestone": "Milestone 2",
+            "start_date": base_date + timedelta(days=60),
+            "end_date": base_date + timedelta(days=240),
+            "status": "planning",
+            "priority": "high",
+            "assigned_to": ["lead-3d-artist-001", "technical-artist-001"],
+            "dependencies": ["pre-production"],
+            "progress": 20
+        },
+        {
+            "id": "narrative-implementation",
+            "title": "Implementación Narrativa",
+            "description": "Sistema de diálogos, ramificación narrativa, localización",
+            "milestone": "Milestone 3",
+            "start_date": base_date + timedelta(days=120),
+            "end_date": base_date + timedelta(days=300),
+            "status": "planning",
+            "priority": "medium",
+            "assigned_to": ["narrative-designer-001"],
+            "dependencies": ["core-systems"],
+            "progress": 10
+        },
+        {
+            "id": "audio-integration",
+            "title": "Integración de Audio",
+            "description": "Música, efectos sonoros, implementación de MetaSounds",
+            "milestone": "Milestone 4",
+            "start_date": base_date + timedelta(days=180),
+            "end_date": base_date + timedelta(days=330),
+            "status": "planning",
+            "priority": "medium",
+            "assigned_to": ["composer-001"],
+            "dependencies": ["core-systems"],
+            "progress": 5
+        },
+        {
+            "id": "polish-optimization",
+            "title": "Pulido y Optimización",
+            "description": "Optimización multiplataforma, testing, balancing",
+            "milestone": "Gold Master",
+            "start_date": base_date + timedelta(days=270),
+            "end_date": base_date + timedelta(days=365),
+            "status": "planning",
+            "priority": "high",
+            "assigned_to": ["project-manager-001", "technical-artist-001"],
+            "dependencies": ["narrative-implementation", "audio-integration"],
+            "progress": 0
+        }
+    ]
+    
+    await db.roadmap.insert_many(roadmap_items)
+    print("✅ Development roadmap loaded")
+    
+    # Publisher Presentation Data
+    publisher_data = [
+        {
+            "id": "game-overview",
+            "section": "overview",
+            "title": "WitchCraft: Sorcerers and Nahuals",
+            "content": "Un innovador Tactics SRPG que combina la mitología mesoamericana con mecánicas de transformación mágica. Los jugadores controlan hechiceros que pueden transformarse en Nahuales (bestias mágicas) para combatir en mapas tácticos por turnos.",
+            "data": {
+                "genre": "Tactics SRPG",
+                "platforms": ["PC", "PlayStation 5", "Xbox Series X|S", "Nintendo Switch 2"],
+                "target_rating": "Teen (13+)",
+                "estimated_playtime": "40-60 hours"
+            },
+            "order": 1,
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "market-position",
+            "section": "market",
+            "title": "Posición en el Mercado",
+            "content": "WitchCraft se posiciona como un SRPG único que combina elementos exitosos de Fire Emblem y Final Fantasy Tactics con una identidad cultural distintiva y mecánicas de transformación innovadoras.",
+            "data": {
+                "target_audience": "Fans de SRPG, jugadores interesados en mitología, audiencia latina",
+                "competitors": ["Fire Emblem", "Final Fantasy Tactics", "Triangle Strategy"],
+                "differentiation": "Transformación Nahual, mitología mesoamericana, sistema de contramagia"
+            },
+            "order": 2,
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "development-plan",
+            "section": "development",
+            "title": "Plan de Desarrollo",
+            "content": "Desarrollo estimado de 12 meses con equipo de 8 especialistas. Arquitectura modular en Unreal Engine 5.4 para facilitar expansiones y DLCs narrativos.",
+            "data": {
+                "timeline": "12 meses",
+                "team_size": 8,
+                "technology": "Unreal Engine 5.4",
+                "milestones": 4,
+                "dlc_plan": "2 expansiones narrativas post-launch"
+            },
+            "order": 3,
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "monetization",
+            "section": "business",
+            "title": "Modelo de Monetización",
+            "content": "Juego premium sin microtransacciones, con DLCs narrativos opcionales. Enfoque en calidad y experiencia completa desde el lanzamiento.",
+            "data": {
+                "base_price": "$39.99 USD",
+                "dlc_price": "$14.99 USD cada uno",
+                "no_microtransactions": True,
+                "localization": ["English", "Spanish", "French", "Japanese"]
+            },
+            "order": 4,
+            "updated_at": datetime.utcnow()
+        }
+    ]
+    
+    await db.publisher_data.insert_many(publisher_data)
+    print("✅ Publisher presentation data loaded")
+    
+    # Progress Metrics
+    progress_metrics = [
+        {
+            "id": "overall-completion",
+            "metric_name": "Progreso General del Proyecto",
+            "current_value": 35.0,
+            "target_value": 100.0,
+            "unit": "%",
+            "category": "development",
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "core-mechanics",
+            "metric_name": "Mecánicas Centrales",
+            "current_value": 4.0,
+            "target_value": 6.0,
+            "unit": "systems",
+            "category": "development",
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "art-assets",
+            "metric_name": "Assets de Arte",
+            "current_value": 15.0,
+            "target_value": 120.0,
+            "unit": "assets",
+            "category": "art",
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "character-models",
+            "metric_name": "Modelos de Personajes",
+            "current_value": 3.0,
+            "target_value": 20.0,
+            "unit": "models",
+            "category": "art",
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "audio-tracks",
+            "metric_name": "Pistas de Audio",
+            "current_value": 2.0,
+            "target_value": 25.0,
+            "unit": "tracks",
+            "category": "audio",
+            "updated_at": datetime.utcnow()
+        },
+        {
+            "id": "localization",
+            "metric_name": "Localización",
+            "current_value": 1.0,
+            "target_value": 4.0,
+            "unit": "languages",
+            "category": "localization",
+            "updated_at": datetime.utcnow()
+        }
+    ]
+    
+    await db.progress_metrics.insert_many(progress_metrics)
+    print("✅ Progress metrics loaded")
+    
+    # Close the database connection
+    client.close()
+    print("🚀 Database seeded successfully! WitchCraft project data is ready.")
+
+if __name__ == "__main__":
+    asyncio.run(seed_database())
+from fastapi import FastAPI, APIRouter, HTTPException
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import logging
+from pathlib import Path
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+import uuid
+from datetime import datetime
+from enum import Enum
+
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
+# MongoDB connection
+mongo_url = os.environ['MONGO_URL']
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ['DB_NAME']]
+
+# Create the main app without a prefix
+app = FastAPI(title="WitchCraft: Sorcerers and Nahuals - Game Documentation Portal")
+
+# Create a router with the /api prefix
+api_router = APIRouter(prefix="/api")
+
+# Enums
+class ProjectStatus(str, Enum):
+    PLANNING = "planning"
+    IN_DEVELOPMENT = "in_development"
+    TESTING = "testing"
+    COMPLETED = "completed"
+    ON_HOLD = "on_hold"
+
+class TeamRole(str, Enum):
+    LEAD_PROGRAMMER = "lead_programmer"
+    GAME_DESIGNER = "game_designer"
+    TECHNICAL_ARTIST = "technical_artist"
+    LEAD_3D_ARTIST = "lead_3d_artist"
+    CONCEPT_ARTIST = "concept_artist"
+    NARRATIVE_DESIGNER = "narrative_designer"
+    COMPOSER = "composer"
+    PROJECT_MANAGER = "project_manager"
+
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+# Define Models for WitchCraft Game Documentation
+
+# Game Technical Specifications
+class TechnicalSpecs(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    engine: str = "Unreal Engine 5"
+    version: str = "5.4"
+    platforms: List[str]
+    features: Dict[str, Any]
+    requirements: Dict[str, Any]
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Game Mechanics
+class GameMechanic(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: str
+    category: str  # combat, transformation, progression, etc.
+    implementation_details: str
+    priority: Priority
+    status: ProjectStatus
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Concept Art and Assets
+class ConceptArt(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    category: str  # character, environment, ui, etc.
+    image_url: str
+    artist: Optional[str] = None
+    tags: List[str] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Team Members
+class TeamMember(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    role: TeamRole
+    bio: Optional[str] = None
+    skills: List[str] = []
+    contact: Optional[str] = None
+    avatar_url: Optional[str] = None
+    joined_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Development Roadmap
+class RoadmapItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    milestone: str
+    start_date: datetime
+    end_date: datetime
+    status: ProjectStatus
+    priority: Priority
+    assigned_to: List[str] = []  # team member IDs
+    dependencies: List[str] = []  # other roadmap item IDs
+    progress: int = Field(default=0, ge=0, le=100)  # percentage
+
+# Publisher Presentation Data
+class PublisherData(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    section: str  # overview, market_analysis, development_plan, etc.
+    title: str
+    content: str
+    data: Optional[Dict[str, Any]] = None
+    order: int = 0
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Development Progress Tracking
+class ProgressMetric(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    metric_name: str
+    current_value: float
+    target_value: float
+    unit: str
+    category: str  # development, art, design, etc.
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Create DTOs (Data Transfer Objects) for requests
+class TechnicalSpecsCreate(BaseModel):
+    title: str
+    engine: str = "Unreal Engine 5"
+    version: str = "5.4"
+    platforms: List[str]
+    features: Dict[str, Any]
+    requirements: Dict[str, Any]
+
+class GameMechanicCreate(BaseModel):
+    name: str
+    description: str
+    category: str
+    implementation_details: str
+    priority: Priority = Priority.MEDIUM
+    status: ProjectStatus = ProjectStatus.PLANNING
+
+class ConceptArtCreate(BaseModel):
+    title: str
+    description: str
+    category: str
+    image_url: str
+    artist: Optional[str] = None
+    tags: List[str] = []
+
+class TeamMemberCreate(BaseModel):
+    name: str
+    role: TeamRole
+    bio: Optional[str] = None
+    skills: List[str] = []
+    contact: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+class RoadmapItemCreate(BaseModel):
+    title: str
+    description: str
+    milestone: str
+    start_date: datetime
+    end_date: datetime
+    status: ProjectStatus = ProjectStatus.PLANNING
+    priority: Priority = Priority.MEDIUM
+    assigned_to: List[str] = []
+    dependencies: List[str] = []
+    progress: int = 0
+
+class PublisherDataCreate(BaseModel):
+    section: str
+    title: str
+    content: str
+    data: Optional[Dict[str, Any]] = None
+    order: int = 0
+
+class ProgressMetricCreate(BaseModel):
+    metric_name: str
+    current_value: float
+    target_value: float
+    unit: str
+    category: str
+
+# Basic API Routes
+@api_router.get("/")
+async def root():
+    return {
+        "message": "WitchCraft: Sorcerers and Nahuals - Game Documentation API",
+        "version": "1.0.0",
+        "description": "API for managing game documentation, team progress, and publisher presentations"
+    }
+
+# Technical Specifications Routes
+@api_router.post("/technical-specs", response_model=TechnicalSpecs)
+async def create_technical_specs(specs: TechnicalSpecsCreate):
+    specs_dict = specs.dict()
+    specs_obj = TechnicalSpecs(**specs_dict)
+    await db.technical_specs.insert_one(specs_obj.dict())
+    return specs_obj
+
+@api_router.get("/technical-specs", response_model=List[TechnicalSpecs])
+async def get_technical_specs():
+    specs_list = await db.technical_specs.find().to_list(100)
+    return [TechnicalSpecs(**specs) for specs in specs_list]
+
+@api_router.get("/technical-specs/{specs_id}", response_model=TechnicalSpecs)
+async def get_technical_spec(specs_id: str):
+    specs = await db.technical_specs.find_one({"id": specs_id})
+    if not specs:
+        raise HTTPException(status_code=404, detail="Technical specifications not found")
+    return TechnicalSpecs(**specs)
+
+# Game Mechanics Routes
+@api_router.post("/game-mechanics", response_model=GameMechanic)
+async def create_game_mechanic(mechanic: GameMechanicCreate):
+    mechanic_dict = mechanic.dict()
+    mechanic_obj = GameMechanic(**mechanic_dict)
+    await db.game_mechanics.insert_one(mechanic_obj.dict())
+    return mechanic_obj
+
+@api_router.get("/game-mechanics", response_model=List[GameMechanic])
+async def get_game_mechanics():
+    mechanics = await db.game_mechanics.find().to_list(1000)
+    return [GameMechanic(**mechanic) for mechanic in mechanics]
+
+@api_router.get("/game-mechanics/{mechanic_id}", response_model=GameMechanic)
+async def get_game_mechanic(mechanic_id: str):
+    mechanic = await db.game_mechanics.find_one({"id": mechanic_id})
+    if not mechanic:
+        raise HTTPException(status_code=404, detail="Game mechanic not found")
+    return GameMechanic(**mechanic)
+
+@api_router.put("/game-mechanics/{mechanic_id}", response_model=GameMechanic)
+async def update_game_mechanic(mechanic_id: str, mechanic_update: GameMechanicCreate):
+    mechanic = await db.game_mechanics.find_one({"id": mechanic_id})
+    if not mechanic:
+        raise HTTPException(status_code=404, detail="Game mechanic not found")
+    
+    update_data = mechanic_update.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    await db.game_mechanics.update_one({"id": mechanic_id}, {"$set": update_data})
+    updated_mechanic = await db.game_mechanics.find_one({"id": mechanic_id})
+    return GameMechanic(**updated_mechanic)
+
+# Concept Art Routes
+@api_router.post("/concept-art", response_model=ConceptArt)
+async def create_concept_art(art: ConceptArtCreate):
+    art_dict = art.dict()
+    art_obj = ConceptArt(**art_dict)
+    await db.concept_art.insert_one(art_obj.dict())
+    return art_obj
+
+@api_router.get("/concept-art", response_model=List[ConceptArt])
+async def get_concept_art():
+    art_list = await db.concept_art.find().to_list(1000)
+    return [ConceptArt(**art) for art in art_list]
+
+@api_router.get("/concept-art/category/{category}", response_model=List[ConceptArt])
+async def get_concept_art_by_category(category: str):
+    art_list = await db.concept_art.find({"category": category}).to_list(1000)
+    return [ConceptArt(**art) for art in art_list]
+
+# Team Members Routes
+@api_router.post("/team-members", response_model=TeamMember)
+async def create_team_member(member: TeamMemberCreate):
+    member_dict = member.dict()
+    member_obj = TeamMember(**member_dict)
+    await db.team_members.insert_one(member_obj.dict())
+    return member_obj
+
+@api_router.get("/team-members", response_model=List[TeamMember])
+async def get_team_members():
+    members = await db.team_members.find().to_list(100)
+    return [TeamMember(**member) for member in members]
+
+@api_router.get("/team-members/{member_id}", response_model=TeamMember)
+async def get_team_member(member_id: str):
+    member = await db.team_members.find_one({"id": member_id})
+    if not member:
+        raise HTTPException(status_code=404, detail="Team member not found")
+    return TeamMember(**member)
+
+# Roadmap Routes
+@api_router.post("/roadmap", response_model=RoadmapItem)
+async def create_roadmap_item(item: RoadmapItemCreate):
+    item_dict = item.dict()
+    item_obj = RoadmapItem(**item_dict)
+    await db.roadmap.insert_one(item_obj.dict())
+    return item_obj
+
+@api_router.get("/roadmap", response_model=List[RoadmapItem])
+async def get_roadmap():
+    roadmap = await db.roadmap.find().sort("start_date", 1).to_list(1000)
+    return [RoadmapItem(**item) for item in roadmap]
+
+@api_router.put("/roadmap/{item_id}/progress", response_model=RoadmapItem)
+async def update_roadmap_progress(item_id: str, progress: int):
+    if progress < 0 or progress > 100:
+        raise HTTPException(status_code=400, detail="Progress must be between 0 and 100")
+    
+    item = await db.roadmap.find_one({"id": item_id})
+    if not item:
+        raise HTTPException(status_code=404, detail="Roadmap item not found")
+    
+    # Auto-update status based on progress
+    new_status = ProjectStatus.COMPLETED if progress == 100 else ProjectStatus.IN_DEVELOPMENT
+    
+    await db.roadmap.update_one(
+        {"id": item_id}, 
+        {"$set": {"progress": progress, "status": new_status}}
+    )
+    
+    updated_item = await db.roadmap.find_one({"id": item_id})
+    return RoadmapItem(**updated_item)
+
+# Publisher Data Routes
+@api_router.post("/publisher-data", response_model=PublisherData)
+async def create_publisher_data(data: PublisherDataCreate):
+    data_dict = data.dict()
+    data_obj = PublisherData(**data_dict)
+    await db.publisher_data.insert_one(data_obj.dict())
+    return data_obj
+
+@api_router.get("/publisher-data", response_model=List[PublisherData])
+async def get_publisher_data():
+    data_list = await db.publisher_data.find().sort("order", 1).to_list(1000)
+    return [PublisherData(**data) for data in data_list]
+
+@api_router.get("/publisher-data/section/{section}", response_model=List[PublisherData])
+async def get_publisher_data_by_section(section: str):
+    data_list = await db.publisher_data.find({"section": section}).sort("order", 1).to_list(1000)
+    return [PublisherData(**data) for data in data_list]
+
+# Progress Metrics Routes
+@api_router.post("/progress-metrics", response_model=ProgressMetric)
+async def create_progress_metric(metric: ProgressMetricCreate):
+    metric_dict = metric.dict()
+    metric_obj = ProgressMetric(**metric_dict)
+    await db.progress_metrics.insert_one(metric_obj.dict())
+    return metric_obj
+
+@api_router.get("/progress-metrics", response_model=List[ProgressMetric])
+async def get_progress_metrics():
+    metrics = await db.progress_metrics.find().to_list(1000)
+    return [ProgressMetric(**metric) for metric in metrics]
+
+@api_router.get("/progress-metrics/category/{category}", response_model=List[ProgressMetric])
+async def get_progress_metrics_by_category(category: str):
+    metrics = await db.progress_metrics.find({"category": category}).to_list(1000)
+    return [ProgressMetric(**metric) for metric in metrics]
+
+@api_router.put("/progress-metrics/{metric_id}", response_model=ProgressMetric)
+async def update_progress_metric(metric_id: str, current_value: float):
+    metric = await db.progress_metrics.find_one({"id": metric_id})
+    if not metric:
+        raise HTTPException(status_code=404, detail="Progress metric not found")
+    
+    await db.progress_metrics.update_one(
+        {"id": metric_id}, 
+        {"$set": {"current_value": current_value, "updated_at": datetime.utcnow()}}
+    )
+    
+    updated_metric = await db.progress_metrics.find_one({"id": metric_id})
+    return ProgressMetric(**updated_metric)
+
+# Dashboard Summary Route
+@api_router.get("/dashboard-summary")
+async def get_dashboard_summary():
+    # Get counts and summary data for the dashboard
+    total_mechanics = await db.game_mechanics.count_documents({})
+    completed_mechanics = await db.game_mechanics.count_documents({"status": ProjectStatus.COMPLETED})
+    
+    total_roadmap_items = await db.roadmap.count_documents({})
+    completed_roadmap_items = await db.roadmap.count_documents({"status": ProjectStatus.COMPLETED})
+    
+    total_concept_art = await db.concept_art.count_documents({})
+    team_members_count = await db.team_members.count_documents({})
+    
+    # Calculate overall progress
+    roadmap_items = await db.roadmap.find().to_list(1000)
+    if roadmap_items:
+        avg_progress = sum(item.get("progress", 0) for item in roadmap_items) / len(roadmap_items)
+    else:
+        avg_progress = 0
+    
+    return {
+        "project_name": "WitchCraft: Sorcerers and Nahuals",
+        "overview": {
+            "total_mechanics": total_mechanics,
+            "completed_mechanics": completed_mechanics,
+            "mechanics_progress": (completed_mechanics / total_mechanics * 100) if total_mechanics > 0 else 0,
+            "total_roadmap_items": total_roadmap_items,
+            "completed_roadmap_items": completed_roadmap_items,
+            "roadmap_progress": (completed_roadmap_items / total_roadmap_items * 100) if total_roadmap_items > 0 else 0,
+            "overall_progress": avg_progress,
+            "total_concept_art": total_concept_art,
+            "team_size": team_members_count,
+        },
+        "last_updated": datetime.utcnow()
+    }
+
+# Include the router in the main app
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
